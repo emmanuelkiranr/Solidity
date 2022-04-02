@@ -1,0 +1,426 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "E:\\Solidity\\contracts\\HelloWorld.sol": {
+      "lastModificationDate": 1648823276486,
+      "contentHash": "507c7c8652672b9d55dd0247fde541a8",
+      "sourceName": "contracts/HelloWorld.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "HelloWorld"
+      ]
+    },
+    "E:\\Solidity\\contracts\\ValueTypes.sol": {
+      "lastModificationDate": 1648911930162,
+      "contentHash": "f5bc97f6a0ce6f27161c18a03a15f6a5",
+      "sourceName": "contracts/ValueTypes.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ValueType"
+      ]
+    },
+    "E:\\Solidity\\contracts\\FunctionIntro.sol": {
+      "lastModificationDate": 1648829228781,
+      "contentHash": "d9da06d6c9a9fabe5e2d97623a0d3637",
+      "sourceName": "contracts/FunctionIntro.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "FunctionIntro"
+      ]
+    },
+    "E:\\Solidity\\contracts\\Constants.sol": {
+      "lastModificationDate": 1648917179034,
+      "contentHash": "b8e19d3ae2a048239e94812ad8df4e8c",
+      "sourceName": "contracts/Constants.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Constants",
+        "Var"
+      ]
+    },
+    "E:\\Solidity\\contracts\\Counter.sol": {
+      "lastModificationDate": 1648910238292,
+      "contentHash": "e61bd08dc5d23d76a3a18de8a059518f",
+      "sourceName": "contracts/Counter.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Counter"
+      ]
+    },
+    "E:\\Solidity\\contracts\\DefaultValue.sol": {
+      "lastModificationDate": 1648912171638,
+      "contentHash": "731c98948fdf451ffd568fea6e017b9f",
+      "sourceName": "contracts/DefaultValue.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "DefaultValue"
+      ]
+    },
+    "E:\\Solidity\\contracts\\ForAndWhileLoops.sol": {
+      "lastModificationDate": 1648923399333,
+      "contentHash": "9830286e5dafa4674cb8411ce2679a03",
+      "sourceName": "contracts/ForAndWhileLoops.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ForAndWhileLoops"
+      ]
+    },
+    "E:\\Solidity\\contracts\\GlobalVariables.sol": {
+      "lastModificationDate": 1648888444528,
+      "contentHash": "9f12ed233773a6b156103c6d55ecd668",
+      "sourceName": "contracts/GlobalVariables.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "GlobalVariables"
+      ]
+    },
+    "E:\\Solidity\\contracts\\IfElse.sol": {
+      "lastModificationDate": 1648921060822,
+      "contentHash": "35a8f7b5afab3078f7bbd1796c1b99e3",
+      "sourceName": "contracts/IfElse.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IfElse"
+      ]
+    },
+    "E:\\Solidity\\contracts\\LocalVariable.sol": {
+      "lastModificationDate": 1648883168597,
+      "contentHash": "8c1fa8b72063a43e8e36025cfe637202",
+      "sourceName": "contracts/LocalVariable.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "LocalVariable"
+      ]
+    },
+    "E:\\Solidity\\contracts\\StateVariables.sol": {
+      "lastModificationDate": 1648882290141,
+      "contentHash": "c87a6b6f06291c9dd1c7ecb4dde0ff59",
+      "sourceName": "contracts/StateVariables.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "StateVariables"
+      ]
+    },
+    "E:\\Solidity\\contracts\\ViewAndPureFunctions.sol": {
+      "lastModificationDate": 1648897032866,
+      "contentHash": "fd0b9ab69d16f87bd640b8ebd66dbd65",
+      "sourceName": "contracts/ViewAndPureFunctions.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ViewAndPoreFunctions"
+      ]
+    }
+  }
+}
