@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0; 
+pragma solidity ^0.8.0;
+
 // Its best to use specific compiler version while deploying to main net
 
 contract HelloWorld {

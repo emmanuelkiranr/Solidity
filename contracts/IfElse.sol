@@ -2,17 +2,16 @@
 pragma solidity ^0.8.0;
 
 contract IfElse {
-    function num(uint _x) external pure returns(uint){
-        if (_x ==1 ) {
+    function num(uint256 _x) external pure returns (uint256) {
+        if (_x == 1) {
             return 1;
-        }
-        else if (_x == 2) {
+        } else if (_x == 2) {
             return 2;
         }
-        return 3;        
+        return 3;
     }
 
-    function ternary(uint _x) external pure returns(bool){
-        return _x % 2 ==0 ? true : false;
+    function ternary(uint256 _x) external pure returns (bool) {
+        return _x % 2 == 0 ? true : false;
     }
 }
