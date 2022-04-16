@@ -484,3 +484,179 @@ contract Ownable {
         // code
     }
 }
+
+## Function Outputs - multiple named Outputs
+
+    function returnMultipleOutputs() public pure returns(uint, bool) {
+        return(1, true);
+    }
+    public cause we can use this fn in other fns inside this contract. returns(return types 1, return type 2) inside the body we match the 
+    return type.
+
+    Here we know the return type, but we dont know what they represent so name the outputs [similar to naming variable].
+    function named() public pure returns(uint x, bool b) {
+        return(1, true);
+    }
+
+    when we have a named output we can implicitly return values, so the return statement can be ommitted. Just simply assign the value to the 
+    named outputs inside the fn body - This will save little gas as there is 1 less copy to do
+
+    function assigned() public pure returns(uint x, bool b) {
+        x = 1;
+        b = true;
+    }
+
+## Destructuring assignment
+    To capture the output in another fn
+
+    function returnMany() public pure returns (uint256, bool) {
+        return (1, true);
+    }
+
+    We capture this fns output in another fn
+
+    function destructuringAssignments() public pure {
+        (uint x, bool b) = returnMany(); - Inside destructuringAssignments() we call returnMany() which returns a uint and bool.
+        (, bool _b) = returnMany(); - To avoid name conflicts use _b
+    }
+
+    To capture multiple outputs and assign variables to it inside destructuringAssignments(), we start with paranthesis declaring the datatypes 
+    and name of the variables to be captured inside a () [(uint x, bool b)] and assign this to the fn returnMany().
+
+    If we need just one output out of many outputs then we ommit the unwanted variables, but keep the comma
+    function destructuringAssignments() public pure {
+        (, bool b) = returnMany(); 
+    }
+
+## Array
+
+    Arrays in solidity can be dynamic or fixed size
+        - Initialization
+        - Insert (push), get, update, delete, pop, length 
+        - Creating array in memory 
+        - Returning array from fn
+
+    Initialization 
+        Initializing a dynamic[variable size] array as a state variable
+            uint[] public nums = [1,2,3];
+        Fixed size arrat
+            uint[5] public numsFixed = [4, 5, 6, 7, 8];
+
+    Operations - Insert (push), get, update, delete, pop, length
+    function examples() external {
+        nums.push(4);
+            Insert 4 to the end of nums array state variable => [1, 2, 3, 4]
+
+        uint x = nums[1];
+            Access array elements with index
+
+        nums[2] = 777; - [1, 2, 777, 4]
+            Update an element in the array
+
+        delete nums[1]; 
+            Delete an element from the array - even after deletion length of the array remains same. 
+            This will delete the element at index 1 and set it to the default value 0 => [1, 0, 777, 4]
+
+        nums.pop(); - [1, 0, 777]
+            Pop - to shrink size of array - remove last element from the array
+
+        uint len = nums.length;
+            Length of the array
+        
+        create array in memory - update or get value
+        
+        uint256[] memory arr = new uint256[](5);
+            array in memory are of fixed size so push an pop operations wont work
+        arr[1] = 123; - update
+    }
+
+    Returning array from fn
+        Not recommended for the same reason as to keep the for loops small, the bigger the array, the more gas it will use 
+        [For executing bigger arrays more gas will be consumed and there will not be any left to execute the return array function]
+
+    function returnArray() external view returns (uint256[] memory) {
+        return nums;
+    }
+    memory - tells solidity that we want to copy the state variables nums into memory then return it
+
+## Remove an element from the array by shifting
+
+    Deleting an elt from an array doesnt actually remove the element, it just resets it to its default value
+        function example() public {
+            array = [1, 2, 3];
+            delete array[1]; // [1, 0, 3]
+        }
+
+    Remove an element from the array and shrink its length by shifting 
+        Shift all elts to the left then pop the last element
+            [1, 2, 3] -- remove(1) -> [1, 3, 3] --> [1,3]
+            [1, 2, 3, 4, 5, 6] -- remove(2) --> [1, 2, 4, 5, 6, 6] --> [1, 2, 4, 5, 6]
+
+        we copied elts from right to left - starting at the element one right to the one that we want to remove and after we're done copying 
+        each elt we remove the last elt
+            edge case - [1] -- remove(0) --> [1] --> []
+
+        
+    function remove(uint256 _index) public {
+        require(_index < array.length, "index out of bound"); 
+            check index < array length
+            
+        copy elts from right to left starting from the index to remove
+        for (uint256 i = _index; i <= array.length - 1; i++) {
+            We're iterating till array.length - 1, cause array index starts from 0.
+            array[i] = array[i + 1];
+                we'll have an array that has elts from right shifted to left starting form the index position of the elt to be removed
+        } 
+        array.pop();
+            Pop the last/duplicate element
+    }
+
+    When fn test() is called the array is initialized [The scope of this array is not local to this fn cause its declaration is done outside the fn so 
+    its a state variable]
+
+    function test() external { 
+        array = [1, 2, 3, 4, 5]; 
+        remove(2); - Since the remove fn is public we can access it from inside other fns in the smart contract 
+                   - external - to access the fn once contract is deployed
+                   - public - to access the fn from other fns etc in the smart contract
+        => [1, 2, 4, 5]
+        assert(array[0] == 1);
+        assert(array[1] == 2);
+        assert(array[1] == 4);
+        assert(array[3] == 5);
+        assert(array.length == 4);
+    }
+}
+
+## Array Remove An Element By Replacing Last
+    Replace the element you want to remove with the last element and remove the last element. 
+
+    [1, 2, 3, 4] -- remove(1) --> [1, 4, 3]
+    [1, 4, 3] -- remove(2) --> [1, 4]
+
+    More gas efficient than Array shifting; but here the order of array is not preserved.
+    This method doesnt shift array elts. Just requires 2 operations replacing the elt to remove and removing the last elt(so we are not 
+    shifting we are shuffling around the array elts)
+
+    uint256[] public arr;
+
+    function remove(uint256 _index) public {
+        arr[_index] = arr[arr.length - 1];
+        arr.pop();
+    }
+
+    function test() external {
+        arr = [1, 2, 3, 4];
+        remove(1);
+        // [1, 4, 3]
+        assert(arr.length == 3);
+        assert(arr[0] == 1);
+        assert(arr[1] == 4);
+        assert(arr[2] == 3);
+
+        remove(2);
+        // [1, 4]
+        assert(arr.length == 2);
+        assert(arr[0] == 1);
+        assert(arr[1] == 4);
+    }
