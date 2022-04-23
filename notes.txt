@@ -263,7 +263,7 @@ Bigger the number of iterations in a loop, more the gas costs
 
     when we call a fn in a contract there are 3 ways to throw an error require, revert, assert.
     When an error is thrown inside a transaction the gas is refunded, state variables which are updated, will be reverted.
-    In solidity 0.8 we can use custom error to save gas.
+    In solidity 0.8.4 we can use custom error to save gas.
 
 ## Require
     Require is used to validate input and access control - controlling who gets to call the fn.
@@ -324,7 +324,7 @@ Bigger the number of iterations in a loop, more the gas costs
         require(_i < 10);
     }
     If we pass 13 then the state variable will be updated and since 13 > 10 the check fails; so whatever update was made to the state variable
-    will be undone
+    num will be undone
 
 ## Custom errors
 
@@ -345,12 +345,12 @@ Logging data inside custom error
     error MyError(address caller, uint256 i); - we log the caller of the function and the input that was passed in.  
     function customError(uint256 _i) public view { - since msg.sender is not a local but a global variable so change the function to view type
         if (_i > 10) {
-            revert MyError(msg.sender, _i);
+            revert MyError(msg.sender, _i); - This error msg logs details of sender address and data passed into the error
         }
     }
 
 
-## Function modifier - allows to modify code before and / or after function
+## Function modifier - allows to reuse code before and / or after function
 
     modifier <name of fn modifier> {
         // condition
@@ -407,7 +407,7 @@ without modifier
     } - count is incremented by a specific value only if it is less than 100
 
 with modifier
-    modifier cap(uint256 _i) {
+    modifier cap(uint256 _i) { - variable name can be same cause its scope is this modifier fn onlyz
         require(_i <= 100, "i >100");
         _;
     }
@@ -435,6 +435,38 @@ with modifier
     When fn foo is called it first executes the fn modifier sandwich, so it updates count by 5. Then call the main fn which it is attached to
     in this case its foo() so it updates the count by 1 [now count = 6]. After foo() is done executing control is gonna execute more code in the
     fn modifier sandwich, so count is multiplied by 2 [now count = 12].
+
+## Modifier Example
+        contract Modifier {
+
+            bool public paused;
+            uint256 public count;
+            uint public value;
+            uint public newValue;
+
+            function pause(bool _paused) external {
+                paused = _paused;
+            }
+
+            modifier isPause() {
+                assert(paused);
+                _;
+            }
+            modifier counter(uint _count) {
+                require(_count % 2 == 0, "Invalid count");
+                _;
+            }
+
+            modifier foo() {
+                value = count;
+                _;
+                newValue = count;
+            }
+
+            function fn(uint _count) external isPause counter(_count) foo {
+                count = _count;
+            }
+        }
 
 ## Constructor 
     Constructors are special fns that can be called only once when the contract is deployed whereas normal fns can be called multiple times, 
@@ -497,6 +529,8 @@ contract Ownable {
     function named() public pure returns(uint x, bool b) {
         return(1, true);
     }
+    This tells solidity that we want to copy the returned value into variables x and b;
+    so nameing return type tells solidity where to copy/put these return values.
 
     when we have a named output we can implicitly return values, so the return statement can be ommitted. Just simply assign the value to the 
     named outputs inside the fn body - This will save little gas as there is 1 less copy to do
@@ -539,7 +573,7 @@ contract Ownable {
     Initialization 
         Initializing a dynamic[variable size] array as a state variable
             uint[] public nums = [1,2,3];
-        Fixed size arrat
+        Fixed size array
             uint[5] public numsFixed = [4, 5, 6, 7, 8];
 
     Operations - Insert (push), get, update, delete, pop, length
@@ -563,7 +597,7 @@ contract Ownable {
         uint len = nums.length;
             Length of the array
         
-        create array in memory - update or get value
+        create array in memory - only update or get operations are possible
         
         uint256[] memory arr = new uint256[](5);
             array in memory are of fixed size so push an pop operations wont work
@@ -602,8 +636,8 @@ contract Ownable {
             check index < array length
             
         copy elts from right to left starting from the index to remove
-        for (uint256 i = _index; i <= array.length - 1; i++) {
-            We're iterating till array.length - 1, cause array index starts from 0.
+        for (uint256 i = _index; i < array.length - 1; i++) {
+            We're iterating till array.length - 1, cause once we shifted the last elt to 2nd last position, we need to pop last element.
             array[i] = array[i + 1];
                 we'll have an array that has elts from right shifted to left starting form the index position of the elt to be removed
         } 
@@ -622,7 +656,7 @@ contract Ownable {
         => [1, 2, 4, 5]
         assert(array[0] == 1);
         assert(array[1] == 2);
-        assert(array[1] == 4);
+        assert(array[2] == 4);
         assert(array[3] == 5);
         assert(array.length == 4);
     }
@@ -638,25 +672,76 @@ contract Ownable {
     This method doesnt shift array elts. Just requires 2 operations replacing the elt to remove and removing the last elt(so we are not 
     shifting we are shuffling around the array elts)
 
-    uint256[] public arr;
-
-    function remove(uint256 _index) public {
-        arr[_index] = arr[arr.length - 1];
-        arr.pop();
+    uint[] public arr;
+    function replaceLast(uint _index) public {
+            arr[_index] = arr[arr.length - 1];
+            arr.pop();
     }
 
     function test() external {
-        arr = [1, 2, 3, 4];
-        remove(1);
-        // [1, 4, 3]
-        assert(arr.length == 3);
+        arr = [1, 2, 3, 4, 5]; // [1, 2, 4, 5]
+        replaceLast(1);
         assert(arr[0] == 1);
-        assert(arr[1] == 4);
+        assert(arr[1] == 5);
         assert(arr[2] == 3);
-
-        remove(2);
-        // [1, 4]
-        assert(arr.length == 2);
-        assert(arr[0] == 1);
-        assert(arr[1] == 4);
+        assert(arr[3] == 4);
+        assert(arr.length == 4);
+        arr = [1];
+        replaceLast(0);
+        assert(arr.length == 0);
     }
+}
+
+## Mapping 
+    like a dictionary in python - it allows for efficient lookup
+        To find David is present in the array ["alice", "bob", "charlie"] 
+        normally - iterate each element and see if its equal to David
+        mapping - ["alice: true", "bob: true", "charlie: true"] we can find with just one lookup
+        In this mapping we know alice is present, bob is present, charlie is present, but David is not
+
+# simple mapping - mapping(key_type => value_type) visiblity_modifier mapping_name;
+
+        mapping(address => uint256) public balances; 
+            This mapping represent balance of each address.
+        So if we are given a address we can lookup the balance of it using the mapping balance. 
+
+    Set value in a mapping
+
+        function examples() external {
+            To set a key to a certain value in a mapping using balances
+            To set a key(address) to a certain value (account balance) in mapping balances
+
+            balances[msg.sender] = 123;
+                This maps the address msg.sender(ie key) to a balance 123(ie value)
+
+    Get value stored in a mapping - Syntax is similar to how we access an array
+
+            To get balance of msg.sender stored in balances
+                uint bal = balances[msg.sender];
+                    balances[msg.sender] gets the balance of the account msg.sender form the mapping and stores it to bal
+
+            We can also get balances of mapping that we havent set yet.
+                uint256 bal2 = balances[address(1)]; - 0 default value of uint. 
+                    we are able to access the value stored in balalnces of address(1)
+
+    Update a mapping
+            balances[msg.sender] = 456;
+            balances[msg.sender] += 456; // 123 + 456 = 579
+
+    Delete - clear value stored in mapping - delete <place you want to delete>  - value will be reset
+            delete balances[msg.sender]; - 0 default value of uint
+            
+        }
+
+# Nested mapping
+
+        mapping(address => mapping(address => bool)) public isFriend; 
+            This mapping represent whether an address is a friend with another address
+    
+        function examples() external {
+
+    Set msg.sender is a friend of this contract
+            isFriend[msg.sender][address(this)] = true;
+
+            This maps msg.sender to address(this) which maps to true therby saying msg.sender is a friend of addrss(this)
+        }
