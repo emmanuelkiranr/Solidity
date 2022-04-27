@@ -843,3 +843,202 @@ Get all the value of the balances mapping using for loop
                     return balances[keys[_i]];
                 }
             }
+
+## Structure - struct
+    Structs allows to group data together - collection of different types combined together to create a new type.
+        - creating a structure
+        - Declaring a structure variable
+        - Initializing structure members
+
+creating a structure
+    struct Car {
+        string model;
+        uint year;
+        address owner;
+    }
+
+Declaring a structure variable - since after initializing we still need access to the data in the structure
+    
+    we can use struct as a state variable
+        Car public car;
+
+    we can also create an array of struct
+        Car[] public cars; [uint[] - integer array , since Car is struct therfore Car[] is structure array]
+
+    we can define a mapping from the owner to cars
+        mapping (address => Car[]) public carsByOwner;
+
+Initializing structure members - 3 ways
+
+    function examples() external { 
+        1. Simiilar to how we would execute a fn - we put all the parameters into paranthesis - order matters
+
+            Car memory toyota = Car("Toyota", 1990, msg.sender); 
+                creating a variable of type struct car (Car) inside memory so this Car variable will only exist when this 
+                fn is called
+
+        2. By passing key value pairs inside the paranthesis - order doesnt matter
+            Car memory lambo = Car({model: "Lamborghini", year: 1980, owner: msg.sender}); 
+
+        3. Just define and the struct will have a default value cause variables in solidity hava a default value
+
+            Car memory tesla; - model - empty string, year - 0, owner - address(0)
+        adding data
+            tesla.model = "Tesla";
+            tesla.year = 2010;
+            tesla.owner = msg.sender;
+
+    When we call this fn it'll initialize the struct in memory so the fn will execute and after execution these structs 
+    will be gone
+
+    # To get structs from the smart contract after execution put these in a state variables 
+
+        - we'll push these structs into the cars array  - array of structure [or we can create individual struct state var 
+        for all these struct]  
+            cars.push(toyota);
+            cars.push(lambo);
+            cars.push(tesla);
+                Once this part is executed our struct will be stored in the cars array - we don't really need to 
+                initialize a struct as memory and then save it into a state variable, we can do it in one single line
+
+            - Create a struct and push it immediately into the array
+            cars.push(Car("Ferrari", 2020, msg.sender)); 
+                equivalent to initializing a car in memory and then pushing it to the cars array
+
+        - adding to state variable car
+            car = Car("BMW", 1970, msg.sender);
+                Once this part is executed our struct will be stored in the car variable
+    }
+
+# Once data is stored in a state variable we can access it and update it.
+
+# Access
+
+- If stored in a state variable we can directly access it if its public.
+
+- If stored in an array we need to access it via the index number - 
+
+    Cars memory _car = cars[0]; - since we just need the car from the state variable and read it, and no 
+                                  modification, then we can decalare as memory
+        Now _car is a struct that stores the details of the structure in the index 0 of the cars array
+
+    To access the struct members of _car
+        _car.model; 
+        _car.year;
+        _car.owner;
+
+# update
+    To modify the year of the car - first thing is to change the keyword memory to storage since memory means we are 
+    loading this data(_car) onto memory, so if we modify anything on memory then once the fn is done executing nothing 
+    will change whereas storage means we want to update the variables stored inside the smart contract.
+
+        Car storage _car = cars[0];
+        _car.year = 1985;
+            This will update the car stored in the cars arrays first element and update the year to 1985 
+            Once this fn is done executing this change will be saved.
+
+    We can also use the keyword delete to reset the field stored in a struct
+        delete _car.owner;
+            This will reset the owner of the car to the default value ie address(0)
+
+    we can also call delete on a struct to reset all the data stored in a struct
+        delete cars[1];
+            This will delete the cars struct that is stored in the cars array the first elt, meaning that whatever is 
+            stored inside cars[1] will be reset to default value.
+            After this Car struct stored here (cars[1]) will have a empty string, year will be 0, owner 0 address
+
+contract Structs {
+    struct Car {
+        string model;
+        uint year;
+        address owner;
+    }
+
+    Car public car;
+    Car[] public cars;
+
+    function set() external {
+        car = Car("BMW", 1970, msg.sender);
+
+        Car memory toyata = Car("Toyata", 1980, msg.sender);
+        Car memory lambo = Car({model : "Lambo", year : 1990, owner : msg.sender});
+        Car memory tesla;
+        tesla.model = "Tesla";
+        tesla.year = 2000;
+        tesla.owner = msg.sender;
+
+        cars.push(toyata);
+        cars.push(lambo);
+        cars.push(tesla);       
+
+        cars.push(Car("ferari", 2010, msg.sender)); 
+    } 
+    function get() external {
+        Car memory _car = cars[0];
+        _car.model; 
+        _car.year;
+        _car.owner;
+    }
+
+    OR
+            function get() external view returns(string memory, uint, address) {
+                Car memory _car = cars[0];
+                return(_car.model, _car.year, _car.owner);
+            }
+
+    function update() external {
+        Car storage _car = cars[0];
+        _car.year = 1985;
+
+        delete _car.owner;
+
+        delete cars[1];
+    }
+}
+
+## Enum
+    Structs allow us to express multiple choices eg bool - true and false. 
+    If we need to express more choices then use Enum
+
+    contract Enum {
+    enum Status {
+        None,
+        Pending,
+        Shipped,
+        Completed,
+        Rejected,
+        Canceled
+    } - indexed from 0
+
+    Status public status; - Using enum as state variable
+
+    function set(Status _status) external { - Taking enum as input and setting the status to the enum from input
+        status = _status;
+    }
+
+    function setSpecific() external { - update enum to a specific enum
+        status = Status.Pending;
+    }
+
+    function get() external view returns(Status) { - returning enum from a fn
+        return status;
+    }
+
+    function reset() external { - Reset enum to default value using delete
+        delete status;
+            This will reset the status state variable which is a enum to its default value ie the first item defined inside the enum
+    }
+}
+
+eg of combining enums with other datatypes
+
+    Using inside a struct
+        struct Order {
+            address buyer;
+            Status status; - status will be the enum status that we defined
+        }
+
+    Array of Order / array of struct
+        Order[] public orders;
+
+
