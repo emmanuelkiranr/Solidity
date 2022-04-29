@@ -349,12 +349,11 @@ Logging data inside custom error
         }
     }
 
-
 ## Function modifier - allows to reuse code before and / or after function
 
     modifier <name of fn modifier> {
         // condition
-        _; // underscore tells solidity to call the actual fn that this fn modifier wraps. ie execute the rest of the code of the fn. ie call the main fn 
+        _; - underscore tells solidity to call the actual fn that this fn modifier wraps. ie execute the rest of the code of the fn. ie call the main fn 
     }
     After this, declare the fn modifier inside the fn signature to which the modifier is to be added.
 
@@ -412,7 +411,7 @@ with modifier
         _;
     }
 
-    function incBy(uint256 _i) external whenNotPaused cap(_i) {
+    function incBy(uint256 _i) external whenNotPaused cap(_i) { - variable name to be passed to modifier should be same as the variable name the fn receives as input
         count += _i;
     }
 
@@ -750,7 +749,7 @@ contract Ownable {
     In array we can get size of array and iterate through each element using for loop; but we cannot do these in mapping; 
     unless we internally keep track of all the keys in the mapping.
 
-# Build an iteratable mapping
+# Build an iteratable mapping - we store each key into array
 
     mapping(address => uint) public balances; - Mapping that represent balance of an address
 
@@ -1040,5 +1039,111 @@ eg of combining enums with other datatypes
 
     Array of Order / array of struct
         Order[] public orders;
+
+
+## Data Locations - storage, memory and calldata
+    When we use dynamic datatype as a variable we need to declare its data location.
+        
+        Storage - variable is state variable 
+        memory - data is loaded onto memory 
+        calldata - like memory, but can be used only for fn inputs 
+            
+        Storage to update data and memory to read data
+
+# Storage 
+    All the variables and arrays declared outside of the function are state variables and stored in Storage by default.
+    We can also declare a variable of storage type inside the function by using the keyword storage. 
+    Storage means data is stored directly on Blockchain. - use wisely or can be expensive
+
+    Use storage when you want to make an instance of a variable that your smart contract will "save" in its bytcode 
+    (I.e for changes that need to persist between transactions, like balances)
+
+    struct MyStruct {
+        uint foo;
+        string text;
+    }
+
+    mapping (address => MyStruct) public myStructs;
+
+    function insert() external {
+        myStructs[msg.sender] = MyStruct({foo : 123, text : "bar"});
+
+    To modify a struct first thing is to declare it as storage - Only if we need to read it use memory
+    Here we're telling solidity that the variable we're gonna use should point back to the storage, meaning
+    the state variable
+        MyStruct storage myStruct = myStructs[msg.sender];
+
+            To modify a struct firstly access it in a variable,here its myStruct.
+
+            Since structure is mapped from an address, to access the struct of a specific address use the key (myStructs[msg.sender]),
+            Now since this address/key points to its corresponding struct MyStruct, we can access the key's structure elements 
+            via the myStruct variable.
+
+        myStruct.foo = 456; - This change is saved
+
+
+        MyStruct memory readOnly = myStructs[msg.sender];
+
+        This will build MyStruct stored at msg.sender to memory. We can also modify the variable but
+        since data is loaded into memory, after fn execution this change will not be saved.
+
+        readOnly.foo =456; - This change is not saved
+
+# memory
+    Variables created in a function are by default memory.
+
+    
+    When writing fn both for input and output/return we'll use memory and calldata. eg we can pass an uint[] as input, 
+    then we need to declare the data location. Likewise we can also return a dynamic data type, in that case we want to 
+    declare the return type as memory
+
+    Returning structure from memory
+
+    function insert(uint[] memory y, string memory s) external returns (MyStruct memory){
+
+        myStructs[msg.sender] = MyStruct({foo : 123, text : "bar"});
+        MyStruct memory readOnly = myStructs[msg.sender]; 
+        readOnly.foo =456;
+
+        return readOnly;
+    }
+
+    Returning an uint array - For eg we'll inititalize an uint[] in memory and return it 
+
+    function insert(uint[] memory y, string memory s) external returns (MyStruct memory){
+        uint[] memory memArray = new array[](5); - This array will be loaded into memory so only fixed size is possible
+        memArray[0] = 234;
+        return memArray
+    } 
+
+# calldata - its like memory, except that its used for fn inputs since it has a potential to save gas
+    Datatype declared as calldata are non modifiable - means we cannot change the values inside it , it can save gas when 
+    you pass this input into another fn
+
+    function insert(uint[] calldata y, string calldata s) external returns (uint[] memory){
+
+        _internal(y);
+
+    }
+
+    function internal(uint[] calldata y) private {
+        This fn takes the uint[] array from the input of insert() fn [uint[] calldata y], and pass it to the fn _internal(y)
+
+        The difference between loading the input to memory and calldata 
+        If the input of this fn was declared as memory, then solidity would take the input[of insert() fn [uint[] calldata y]]
+        and when it passes it to the fn [_internal(y)], then its gonna copy each element in the uint[] array[of insert()]
+        so it'll be creating a new uint[] array inside the memory then pass it onto the input of this fn(internal(uint[] calldata y))
+
+        If we declare it as calldata then there is one less copying to do, ie it takes y from the input [from insert()] and 
+        then passes it to the internal() without copying it, hence saves gas 
+
+    }
+
+use storage to load dynamic data that you'll update
+use memory to read the data or modify it without saving it to the blockchain 
+for fn inputs use calldata to save gas, whenever the calldata input is passed to another fn it saves gas by avoiding copies    
+
+
+
 
 
