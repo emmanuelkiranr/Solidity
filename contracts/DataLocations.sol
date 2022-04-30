@@ -53,7 +53,7 @@ contract DataLocations {
 
     // Returning an uint array 
 
-    function insert(uint[] memory y, string memory s) external returns (uint[] memory){
+    function insert1(uint[] memory y, string memory s) external returns (uint[] memory){
         myStructs[msg.sender] = MyStruct({foo : 123, text : "bar"});
         MyStruct storage myStruct = myStructs[msg.sender]; 
         
@@ -74,7 +74,7 @@ contract DataLocations {
     /** Datatype declared as calldata are non modifiable - means we cannot change the values inside it , it can save gas when you
     pass this input into another fn */
 
-    function insert(uint[] calldata y, string calldata s) external returns (uint[] memory){
+    function insert2(uint[] calldata y, string calldata s) external returns (uint[] memory){
         myStructs[msg.sender] = MyStruct({foo : 123, text : "bar"});
         MyStruct storage myStruct = myStructs[msg.sender]; 
         
@@ -83,17 +83,18 @@ contract DataLocations {
         MyStruct memory readOnly = myStructs[msg.sender]; 
         readOnly.foo =456;
 
-        internal(y);
+        _internal(y);
+        intrnl(y);
 
         uint[] memory memArray = new uint[](3);
         memArray[0] = 234;
         return memArray;
     }
 // eg calldata - this fn internal takes in input an uint[] from the input over here(above fn)
-    function internal(uint[] calldata y) private {
+    function _internal(uint[] calldata y) private {
 
     }
-    function internal(uint[] memory y) private {
+    function intrnl(uint[] memory y) private {
         /** If internal() was memory the solidity would do is take this input(prev fn) and when it passes on to this fn
         then its gonna copy each elt in this uint[] so it will be creating a new uint array inside the memory and then pass it onto
         here(this fn) but if we declared this fn as calldata then there is one less copying to do - it takes y from input and 

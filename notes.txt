@@ -1040,19 +1040,19 @@ eg of combining enums with other datatypes
     Array of Order / array of struct
         Order[] public orders;
 
+<----------------------------------------------------------------------------------------------------------------------------------->
 
 ## Data Locations - storage, memory and calldata
     When we use dynamic datatype as a variable we need to declare its data location.
         
         Storage - variable is state variable 
         memory - data is loaded onto memory 
-        calldata - like memory, but can be used only for fn inputs 
-            
-        Storage to update data and memory to read data
+        calldata - like memory, but can be used only for fn inputs             
 
 # Storage 
-    All the variables and arrays declared outside of the function are state variables and stored in Storage by default.
-    We can also declare a variable of storage type inside the function by using the keyword storage. 
+    Vars, structs and arrays declared outside fn are state variables and stored in Storage by default. 
+    To access a state variable in storage use storage keyword. 
+
     Storage means data is stored directly on Blockchain. - use wisely or can be expensive
 
     Use storage when you want to make an instance of a variable that your smart contract will "save" in its bytcode 
@@ -1073,7 +1073,7 @@ eg of combining enums with other datatypes
     the state variable
         MyStruct storage myStruct = myStructs[msg.sender];
 
-            To modify a struct firstly access it in a variable,here its myStruct.
+            To modify a struct firstly access it in a variable, here its myStruct.
 
             Since structure is mapped from an address, to access the struct of a specific address use the key (myStructs[msg.sender]),
             Now since this address/key points to its corresponding struct MyStruct, we can access the key's structure elements 
@@ -1091,11 +1091,7 @@ eg of combining enums with other datatypes
 
 # memory
     Variables created in a function are by default memory.
-
-    
-    When writing fn both for input and output/return we'll use memory and calldata. eg we can pass an uint[] as input, 
-    then we need to declare the data location. Likewise we can also return a dynamic data type, in that case we want to 
-    declare the return type as memory
+    When writing fn both for input and output/return we'll use memory and calldata.
 
     Returning structure from memory
 
@@ -1118,32 +1114,121 @@ eg of combining enums with other datatypes
 
 # calldata - its like memory, except that its used for fn inputs since it has a potential to save gas
     Datatype declared as calldata are non modifiable - means we cannot change the values inside it , it can save gas when 
-    you pass this input into another fn
+    you pass this input into another fn.
+    Arrays and structs with calldata data location can also be returned from functions
 
     function insert(uint[] calldata y, string calldata s) external returns (uint[] memory){
-
         _internal(y);
-
     }
 
-    function internal(uint[] calldata y) private {
+    function _internal(uint[] memory y) private {
         This fn takes the uint[] array from the input of insert() fn [uint[] calldata y], and pass it to the fn _internal(y)
 
         The difference between loading the input to memory and calldata 
-        If the input of this fn was declared as memory, then solidity would take the input[of insert() fn [uint[] calldata y]]
+        Since the input of this fn id declared as memory, solidity would take the input[of insert() fn [uint[] calldata y]]
         and when it passes it to the fn [_internal(y)], then its gonna copy each element in the uint[] array[of insert()]
-        so it'll be creating a new uint[] array inside the memory then pass it onto the input of this fn(internal(uint[] calldata y))
-
-        If we declare it as calldata then there is one less copying to do, ie it takes y from the input [from insert()] and 
-        then passes it to the internal() without copying it, hence saves gas 
-
+        so it'll be creating a new uint[] array inside the memory then pass it onto the input of this fn(internal(uint[] memory y))
     }
 
-use storage to load dynamic data that you'll update
-use memory to read the data or modify it without saving it to the blockchain 
-for fn inputs use calldata to save gas, whenever the calldata input is passed to another fn it saves gas by avoiding copies    
+    function _internal(uint[] calldata y) private {
+        If we declare it as calldata then there is one less copying to do, ie it takes y from the input [from insert()] and 
+        then passes it to the internal() without creating a copy of it in memory, hence saves gas 
+    }
 
+    Only drawback of calldata is that it doesnt allow us to modify the input data, whereas memory does
 
+# If we access a var, struct, array which is stored in storage inside a fn.
 
+    Then if the use storage to access it:
+        It is a write operation since accessing a variable(x) stored in storage via a storage declared variable(y) - y is 
+        accessing the same data location where x is. So updating y will update x also since both are pointing to the data in same location.
+        so modifying x will update y after fn execution is over.
 
+    Then if the use memory to access it:
+        It is a read operation since accessing a variable(x) stored in storage via a memory declared variable(y) - since y is in memory, 
+        solidity will create a copy of the data in variable(x) to variable(y) which is in memory. Means x and y are in pointing to locations
+        [x to storage location, y to memory location]. So modifying y will not update x after fn execution is over.
+        Since this read operation is reading from a state variable the fn will be view.
 
+Eg with array
+        contract DataLocations {
+        uint[] public arr = [1, 2, 3, 4];
+
+        function store() external {
+            uint[] storage _arr = arr;
+            _arr[0] = 0;
+        }
+
+        function mem() external view {
+            uint[] memory _arr = arr;
+            _arr[0] = 12;
+        }
+    }
+
+Eg with struct
+    contract DataLocations {
+    
+    struct Data {
+        uint num;
+        string name;
+    }
+
+    Data public data = Data({num : 0, name : "Zero"});
+
+    function store() external {
+        Data storage _data = data;
+        _data.num = 1;
+        _data.name = "one";
+    }
+
+    function mem() external view {
+        Data memory _data = data;
+        _data.num = 2;
+        _data.name = "two";
+    }
+}
+
+If we pass a var, struct, array from one fn to another:
+    - storage -> storage
+    - storage -> mem
+    - mem -> mem
+    - mem !-> calldata !!!
+    - calldata -> mem
+
+    fn1(memory) to fn2(memory) : 
+        possible
+
+    fn1(memroy) to fn2(calldata) :
+        Error
+        
+    fn1(calldata) to fn2(memory) : 
+        possible : when we pass a variable(x) from fn1 to fn2 in fn2 a new copy of the var(x) say (y) is being created
+
+    fn1(calldata) to fn2(calldata) :
+        Possible : When we pass a variable(x) from fn1 to fn2 in fn2 the same x is received [new variable(y) is not formed/ value is not copied]
+        value in fn2 is the same value as in fn1, both are same [both are accessing same data (not pointing like in storage -> storage where 
+        x and y point to same value)]. So same array, var, struct is passed[not pointed & no new arr/var is formed] from fn to fn.
+
+        contract DataLocations {
+            function fromMem(uint[] memory arr) external {
+                toMem(arr);
+                // toCall(arr);
+                // 23744
+            }
+            function fromCall(uint[] calldata arr) external {
+                toMem(arr);
+                toCall(arr);
+                // 22356
+            }
+            function toMem(uint[] memory arr) public {
+                
+            }
+            function toCall(uint[] calldata arr) public {
+                
+            }
+        }
+
+Use storage to load dynamic data that you'll update
+Use memory to read the data or modify it without saving it to the blockchain - creates copy when memory input is passed to another fn 
+or data is loaded and viewed in memory
+For fn inputs use calldata to save gas, whenever the calldata input is passed to another calldata fn it saves gas by avoiding copies  
