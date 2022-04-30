@@ -55,7 +55,9 @@ input values are passed during run time
     function subTwoNumber(int a, int b) external pure returns(int) {
         return a - b;
     }
-    external means when we deploy the contract we'll be able to call this function
+    external means when we deploy the contract we'll be able to call this function.
+    Also external fns can only be called from outside the contract, if you need to call a fn from inside
+    the contract declare it as public.
     pure means this is a read-only fn it does not write data to blockchain; So if we
     try to initialize any variables here, it would give error. 
 
@@ -1231,4 +1233,72 @@ If we pass a var, struct, array from one fn to another:
 Use storage to load dynamic data that you'll update
 Use memory to read the data or modify it without saving it to the blockchain - creates copy when memory input is passed to another fn 
 or data is loaded and viewed in memory
-For fn inputs use calldata to save gas, whenever the calldata input is passed to another calldata fn it saves gas by avoiding copies  
+For fn inputs use calldata to save gas, whenever the calldata input is passed to another calldata fn it saves gas by avoiding copies 
+
+    
+## Simple storage - App that stores a string
+
+contract SimpleStorage {
+    string public text;
+    24497
+
+    Input - "Emmanuel"
+    calldata - 44561
+    memory - 45043
+
+    function setText(string calldata _text) external {
+        If we declare it as memory the received input will be loaded into memory so a copy is being created, where as in calldata its not the case  
+        text = _text;
+    }
+
+    function getText() external view returns (string memory) {
+        return text;
+        24549
+        when we call this fn solidity will copy the state variable text into memory and return it as 
+        a string loaded onto memory
+    }
+}
+
+## ToDo List
+
+contract ToDoList {
+    struct ToDo {
+        string description;
+        bool status;
+    }
+
+    ToDo[] public todos;
+
+    function createTodo(string calldata _description) external {
+        since the input we receive is directly saved to struct without modifing we dont need any copy so use calldata
+        todos.push(ToDo({description: _description, status: false}));
+    }
+
+    function updateTodo(string calldata _newDescription, uint256 _index) external {
+        todos[_index].description = _newDescription;
+        
+        In an array of struct if we are updating just one field then use this method. If we are updating
+        multiple fields then use the method below. Since for multiple field update using the above method 
+        means we will be accessing the array of struct each time we update a field in it, where as the below 
+        will just access the array of struct once and then for updating the field it just access the field 
+        using the dot(.) operater and not the array of struct*
+
+         ToDo storage todo = todos[_index];
+         todo.description = _newDescription;
+    }
+
+    function changeStatus(uint256 _index) external {
+        todos[_index].status = !todos[_index].status; // flipping b/w true and false
+    }
+
+    function getTodo(uint256 _index) external view returns (string memory, bool) {
+        ToDo memory todo = todos[_index];
+
+        Declaring todo as storage means it doesent do a copy here[ie while declaring a 
+        structure variable - todo], it does only one copy while it returns
+        But declaring todo as memory means it does a copy once over here[ie while declaring 
+        a structure variable - todo] and once while returning it, so two copies
+
+        return (todo.description, todo.status);
+    }
+}
