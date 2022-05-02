@@ -74,7 +74,7 @@ input values are passed during run time
 
     uint public myUint = 123;
     State variables are variables that store data to blockchain these are declared inside a contract but outside a function. If a state variable
-    is public then we'll have read access to it, and also the contract automatically creates a getter fn with same name as the variable once we
+    is public then we'll have read access to it, and also the solidity automatically creates a getter fn with same name as the variable once we
     deploy it.
 
 ## Local variables
@@ -267,10 +267,8 @@ Bigger the number of iterations in a loop, more the gas costs
     When an error is thrown inside a transaction the gas is refunded, state variables which are updated, will be reverted.
     In solidity 0.8.4 we can use custom error to save gas.
 
-## Require
-    Require is used to validate input and access control - controlling who gets to call the fn.
+## Require - used to validate input and access control - controlling who gets to call the fn.
         require(cond, "if not print this") - input validation; checks condition, if false throws error msg.
-
 
     function require(uint256 _i) public pure {
         require(_i <= 10, "i > 10");
@@ -869,7 +867,7 @@ Declaring a structure variable - since after initializing we still need access t
     we can define a mapping from the owner to cars
         mapping (address => Car[]) public carsByOwner;
 
-Initializing structure members - 3 ways
+Initializing structure members - 3 ways - use the data location memory while initializing and add it to array and use storage for updating
 
     function examples() external { 
         1. Simiilar to how we would execute a fn - we put all the parameters into paranthesis - order matters
@@ -1108,7 +1106,7 @@ eg of combining enums with other datatypes
 
     Returning an uint array - For eg we'll inititalize an uint[] in memory and return it 
 
-    function insert(uint[] memory y, string memory s) external returns (MyStruct memory){
+    function insert(uint[] memory y, string memory s) external returns (uint[] memory){
         uint[] memory memArray = new array[](5); - This array will be loaded into memory so only fixed size is possible
         memArray[0] = 234;
         return memArray
@@ -1141,15 +1139,15 @@ eg of combining enums with other datatypes
 
 # If we access a var, struct, array which is stored in storage inside a fn.
 
-    Then if the use storage to access it:
+    Then if we use storage to access it:
         It is a write operation since accessing a variable(x) stored in storage via a storage declared variable(y) - y is 
         accessing the same data location where x is. So updating y will update x also since both are pointing to the data in same location.
         so modifying x will update y after fn execution is over.
 
-    Then if the use memory to access it:
+    Then if we use memory to access it:
         It is a read operation since accessing a variable(x) stored in storage via a memory declared variable(y) - since y is in memory, 
-        solidity will create a copy of the data in variable(x) to variable(y) which is in memory. Means x and y are in pointing to locations
-        [x to storage location, y to memory location]. So modifying y will not update x after fn execution is over.
+        solidity will create a copy of the data in variable(x) to variable(y) which is in memory. Means x and y are pointing to different 
+        locations [x to storage location, y to memory location]. So modifying y will not update x after fn execution is over.
         Since this read operation is reading from a state variable the fn will be view.
 
 Eg with array
@@ -1281,10 +1279,10 @@ contract ToDoList {
         multiple fields then use the method below. Since for multiple field update using the above method 
         means we will be accessing the array of struct each time we update a field in it, where as the below 
         will just access the array of struct once and then for updating the field it just access the field 
-        using the dot(.) operater and not the array of struct*
+        using the dot(.) operater and not the array of struct
 
-         ToDo storage todo = todos[_index];
-         todo.description = _newDescription;
+        ToDo storage todo = todos[_index];
+        todo.description = _newDescription;
     }
 
     function changeStatus(uint256 _index) external {
@@ -1302,3 +1300,32 @@ contract ToDoList {
         return (todo.description, todo.status);
     }
 }
+
+## Events 
+    Events allows us to write data to the blockchain - these data cannot be later retrieved by the smart contract
+    purpose of events is to log that something happened - so use it for those cases where we use a 
+    state variable to write data to blockchain and then we dont want to retrieve it.
+
+    event Log(string msg, uint256 val);
+    function logEvent() external { - This is a transactional fn since we are logging data to blockchain
+        emit Log("Hello World", 123); - To log an event use emit
+    }
+
+    To search for a particular event by the parameter that was logged then we use the keyword indexed
+
+    event IndexedLog(address indexed sender, uint val);
+    function logEvent() external {
+        logging indexed log
+        emit IndexedLog(msg.sender, 123);
+    }
+        say x calls this fn 10 times then msg.sender will be alice and bob 20 times then msg.sender will be bob. 
+        Since we have the keyword indexed in the address parameter, so instead of searching all logs for IndexedLog 
+        and then filtering out for alice using web3 we'll be able to find all of the logs in IndexedLog that was emitted by alice.
+        So indexed helps us to quickly search for logs by the parameters. And only upto 3 parameters can be indexed
+        in an event
+
+    event Message(address indexed _from, address indexed _to, string msg);
+    function sendMsg(address _to, string calldata _msg) external {
+        emit Message(msg.sender, _to, _msg);
+    }
+        This msg is public and anyone can see it, to send a msg we have to pay for the fn each time we send a msg
