@@ -4,11 +4,11 @@ pragma solidity ^0.8.0;
 contract HelloWorld { }; contract <NameOfContract> same as file name
 
 string public myString = "Hello World!"; 
-    [type] [visibility modifier] [identifier] = "data";
+    [type] [visibility modifier] [identifier] = "value/data";
 
 ## Data types - values and references
 
-    values means the data/varable stores a value eg- boolean stores true or false,
+    values means the data/variable stores a value eg- boolean stores true or false,
         bool public b = true;
 
     int stores number like -1,0,1...,
@@ -148,6 +148,8 @@ input values are passed during run time
         return x + y; 
     }
         since this fn does not read data from state variable, smart contract or blockchain, therefore this is a pure fn
+
+    [read fns like pure and view displays data on remix if we return the value, write fns displays data in the console only if we return the value]
 
 ## Counter using solidity
 
@@ -348,6 +350,10 @@ Logging data inside custom error
             revert MyError(msg.sender, _i); - This error msg logs details of sender address and data passed into the error
         }
     }
+
+    [function call statement doesn't need to have name for the identifier they only need the value, but the actual function need to have name 
+    and datatype for that identifier (for cases where the actual fns value is further used inside that fn ), for certain cases like custom error using revert the actual function doesnt need to have the name it only
+    needs the identifier (in this eg putting address alone works)]
 
 ## Function modifier - allows to reuse code before and / or after function
 
@@ -561,6 +567,16 @@ contract Ownable {
         (, bool b) = returnMany(); 
     }
 
+    example:
+    function ret() public pure returns (uint256, bool) {
+        return (1, true);
+    }
+
+    function add() public pure returns (uint256 sum) {
+        (uint256 x, ) = ret(); // we can access the value from ret();
+        sum = x + 2;
+    }
+
 ## Array
 
     Arrays in solidity can be dynamic or fixed size
@@ -660,6 +676,27 @@ contract Ownable {
         assert(array.length == 4);
     }
 }
+
+    example for array shifting: 
+    uint256[] public arr = [1, 2, 3];
+
+    function displayArray() public view returns (uint256[] memory) {
+        return arr;
+    }
+
+    function shifting(uint256 _index) public returns (uint256[] memory) {
+        require(_index < arr.length, "index out of bound");
+        for (uint256 i = _index; i < arr.length - 1; i++) {
+            arr[i] = arr[i + 1];
+        }
+        arr.pop();
+        return arr;
+    }
+
+    function afterShifting() public returns (uint256[] memory a) {
+        (arr) = shifting(1);
+        return arr;
+    }
 
 ## Array Remove An Element By Replacing Last
     Replace the element you want to remove with the last element and remove the last element. 

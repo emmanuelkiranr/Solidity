@@ -41,4 +41,19 @@ contract FunctionOutputs {
         captured) and assign this to the fn returnMany()
         If we need just one output out of many outputs then we ommit the unwanted variables, but keep the comma*/
     }
+
+    // eg
+
+    function ret() public pure returns (uint256, bool) {
+        return (1, true);
+    }
+
+    // function ret() public pure returns (uint x, bool y) {
+    // X = 1;
+    // y = true;
+    // }
+    function add() public pure returns (uint256 sum) {
+        (uint256 x, ) = ret(); // we can access the value from ret();
+        sum = x + 2;
+    }
 }

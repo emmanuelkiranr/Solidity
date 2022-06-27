@@ -50,4 +50,26 @@ contract ArrayShift {
         // []
         assert(array.length == 0);
     }
+
+    // example
+    uint256[] public arr = [1, 2, 3];
+
+    // Remove an element from an array by shifting
+    function displayArray() public view returns (uint256[] memory) {
+        return arr;
+    }
+
+    function shifting(uint256 _index) public returns (uint256[] memory) {
+        require(_index < arr.length, "index out of bound");
+        for (uint256 i = _index; i < arr.length - 1; i++) {
+            arr[i] = arr[i + 1];
+        }
+        arr.pop();
+        return arr;
+    }
+
+    function afterShifting() public returns (uint256[] memory a) {
+        (arr) = shifting(1);
+        return arr;
+    }
 }
