@@ -328,7 +328,7 @@ Bigger the number of iterations in a loop, more the gas costs
     If we pass 13 then the state variable will be updated and since 13 > 10 the check fails; so whatever update was made to the state variable
     num will be undone
 
-## Custom errors
+## Custom errors - needs solididty 0.8.4 and above
 
     Custom error is cheaper than to use than using require with some error msg - longer the error msg the more gas it uses.
     Right now custom errors can only be used with revert so we need to transform any code with require to revert custom error.
@@ -786,6 +786,9 @@ contract Ownable {
     In array we can get size of array and iterate through each element using for loop; but we cannot do these in mapping; 
     unless we internally keep track of all the keys in the mapping.
 
+    [we could iterate only in an array so create an array based on the unique key elts (use mapping to add only new keys 
+    to this array) in the mapping and iterate through it ]
+
 # Build an iteratable mapping - we store each key into array
 
     mapping(address => uint) public balances; - Mapping that represent balance of an address
@@ -1077,6 +1080,42 @@ eg of combining enums with other datatypes
     Array of Order / array of struct
         Order[] public orders;
 
+    enum Status {
+        orderConfirmed, // 0
+        shipped, // 1 
+        arrived, // 2
+        delivered // 3
+    }
+
+    struct Product {
+        string name;
+        uint ID;
+        Status stat;        
+    }
+
+    Product[] public prod;
+    Status public stat;
+
+    function addProd() public {
+        prod.push(Product("Iphone 13 pro", 101010, Status.shipped));
+    }
+
+    function defaultStatus() public {
+        stat = Status.orderConfirmed;
+    }
+
+    function setStatus(Status _i) public {
+        stat = _i;
+    }
+
+    function reset() public {
+        delete stat;
+    }
+
+    function getStatus() public view returns(Status) {
+        return stat;
+    } 
+
 <----------------------------------------------------------------------------------------------------------------------------------->
 
 ## Data Locations - storage, memory and calldata
@@ -1144,7 +1183,7 @@ eg of combining enums with other datatypes
     Returning an uint array - For eg we'll inititalize an uint[] in memory and return it 
 
     function insert(uint[] memory y, string memory s) external returns (uint[] memory){
-        uint[] memory memArray = new array[](5); - This array will be loaded into memory so only fixed size is possible
+        uint[] memory memArray = new uint[](5); - This array will be loaded into memory so only fixed size is possible
         memArray[0] = 234;
         return memArray
     } 
@@ -1162,7 +1201,7 @@ eg of combining enums with other datatypes
         This fn takes the uint[] array from the input of insert() fn [uint[] calldata y], and pass it to the fn _internal(y)
 
         The difference between loading the input to memory and calldata 
-        Since the input of this fn id declared as memory, solidity would take the input[of insert() fn [uint[] calldata y]]
+        Since the input of this fn is declared as memory, solidity would take the input[of insert() fn [uint[] calldata y]]
         and when it passes it to the fn [_internal(y)], then its gonna copy each element in the uint[] array[of insert()]
         so it'll be creating a new uint[] array inside the memory then pass it onto the input of this fn(internal(uint[] memory y))
     }

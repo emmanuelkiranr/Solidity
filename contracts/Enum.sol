@@ -51,4 +51,41 @@ contruct Enum {
     function reset() external {
         delete status; // This will reset the status state variable which is a enum to its default value ie the first item defined inside the enum
     }
+
+    // ---------------------------------------//
+    // enum Status {
+    //     orderConfirmed, // 0
+    //     shipped, // 1 
+    //     arrived, // 2
+    //     delivered // 3
+    // }
+
+    // struct Product {
+    //     string name;
+    //     uint ID;
+    //     Status stat;        
+    // }
+
+    // Product[] public prod;
+    // Status public stat;
+
+    // function addProd() public {
+    //     prod.push(Product("Iphone 13 pro", 101010, Status.shipped));
+    // }
+
+    // function defaultStatus() public {
+    //     stat = Status.orderConfirmed;
+    // }
+
+    // function setStatus(Status _i) public {
+    //     stat = _i;
+    // }
+
+    // function reset() public {
+    //     delete stat;
+    // }
+
+    // function getStatus() public view returns(Status) {
+    //     return stat;
+    // } 
 }
