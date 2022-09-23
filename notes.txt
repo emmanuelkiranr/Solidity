@@ -298,6 +298,9 @@ Bigger the number of iterations in a loop, more the gas costs
             }
         }
 
+    In revert condition is checked using loops (where as in require it's in the require statement 
+    itself) and revert fn is used to revert the txn.
+
 ## Assert
 
     Assert is used to check for conditions that should always be true. If condition evaluates to false then it means there might be
@@ -577,6 +580,16 @@ contract Ownable {
         sum = x + 2;
     }
 
+    example 2:
+    function returnValue() public pure returns(uint, bool) {
+        return(2, true);
+    }
+
+    function destructuring() public pure returns(uint, bool) {
+        (uint x, bool y) = returnValue();
+        return(x, y); 
+    }
+
 ## Array
 
     Arrays in solidity can be dynamic or fixed size
@@ -615,7 +628,7 @@ contract Ownable {
         create array in memory - only update or get operations are possible
         
         uint256[] memory arr = new uint256[](5);
-            array in memory are of fixed size so push an pop operations wont work
+            array in memory are of fixed size so push and pop operations wont work
         arr[1] = 123; - update
     }
 
@@ -627,6 +640,49 @@ contract Ownable {
         return nums;
     }
     memory - tells solidity that we want to copy the state variables nums into memory then return it
+
+    Example:
+    contract Test {
+    // Arrays - Insert (push), get, update, delete, pop, length
+
+    uint[] public array = [1, 2, 3]; // intializing dynamic array
+    uint[2] public arr = [4,5]; // Initializing fixed size array
+
+    function insert(uint _num) public {
+        array.push(_num);
+    }
+
+    function access(uint _index) public view returns (uint element) {
+        element = array[_index];
+    }
+
+    function update(uint _index, uint _value) public {
+        array[_index] = _value;
+    }
+
+    function del(uint _index) public {
+        delete array[_index];
+    }
+
+    function get() public view returns (uint[] memory) { // copies the state variable array into memory and returns it
+        return array; 
+    }
+
+    function pop() public {
+        array.pop();
+    }
+
+    function len() public view returns(uint length) {
+        length = array.length;
+    }
+
+    function memArr() public pure returns(uint[] memory a){
+        uint[] memory arrMem = new uint[](2);
+        arrMem[0] = 7;
+        arrMem[1] = 8;
+        a = arrMem;
+    }
+}
 
 ## Remove an element from the array by shifting
 
@@ -758,7 +814,7 @@ contract Ownable {
 
             We can also get balances of mapping that we havent set yet.
                 uint256 bal2 = balances[address(1)]; - 0 default value of uint. 
-                    we are able to access the value stored in balalnces of address(1)
+                    we are able to access the value stored in balances of address(1)
 
     Update a mapping
             balances[msg.sender] = 456;
@@ -781,6 +837,20 @@ contract Ownable {
 
             This maps msg.sender to address(this) which maps to true therby saying msg.sender is a friend of addrss(this)
         }
+
+    example:
+    contract Test {
+    // nested mapping 
+    mapping (address => mapping(address => bool)) public isFriend;
+
+    function set(address adrs) public {
+        isFriend[msg.sender][adrs] = true;
+    }
+
+    function check(address adrs) public view returns(bool b) {
+        b = isFriend[msg.sender][adrs];
+    }
+    }
 
 ## Iterable mapping
     In array we can get size of array and iterate through each element using for loop; but we cannot do these in mapping; 
@@ -950,8 +1020,10 @@ Initializing structure members - 3 ways - use the data location memory while ini
     }
 
 # Once data is stored in a state variable we can access it and update it.
+Updating and accessing struct members is done like accessing the struct into a structure variable from the 
+array of struct using the index position then updating the values using the struct variable
 
-# Access
+# Access - use memory
 
 - If stored in a state variable we can directly access it if its public.
 
@@ -966,7 +1038,7 @@ Initializing structure members - 3 ways - use the data location memory while ini
         _car.year;
         _car.owner;
 
-# update
+# update - use storage
     To modify the year of the car - first thing is to change the keyword memory to storage since memory means we are 
     loading this data(_car) onto memory, so if we modify anything on memory then once the fn is done executing nothing 
     will change whereas storage means we want to update the variables stored inside the smart contract.
@@ -1080,6 +1152,7 @@ eg of combining enums with other datatypes
     Array of Order / array of struct
         Order[] public orders;
 
+example:
     enum Status {
         orderConfirmed, // 0
         shipped, // 1 
@@ -1116,6 +1189,32 @@ eg of combining enums with other datatypes
         return stat;
     } 
 
+example:
+    enum Status {
+        none,
+        ordered,
+        shipped,
+        delivered,
+        cancelled
+    }
+
+    Status public status;
+
+    struct Product {
+        uint id;
+        Status status;
+    }
+
+    Product public prod;
+    Product[] public prods;
+
+    function buy(uint _id, Status _stat) public {
+        prods.push(Product({
+            id: _id,
+            status: _stat
+        }));
+    }
+
 <----------------------------------------------------------------------------------------------------------------------------------->
 
 ## Data Locations - storage, memory and calldata
@@ -1142,7 +1241,7 @@ eg of combining enums with other datatypes
     mapping (address => MyStruct) public myStructs;
 
     function insert() external {
-        myStructs[msg.sender] = MyStruct({foo : 123, text : "bar"});
+        myStructs[msg.sender] = MyStruct({foo : 123, text : "bar"}); // To initialize a struct we don't need storage of mem
 
     To modify a struct first thing is to declare it as storage - Only if we need to read it use memory
     Here we're telling solidity that the variable we're gonna use should point back to the storage, meaning
@@ -1198,6 +1297,12 @@ eg of combining enums with other datatypes
     }
 
     function _internal(uint[] memory y) private {
+
+        // here new copy of uint[] array is created 
+        // uint[] array received from insert fn
+        // can modify the input/received data
+
+
         This fn takes the uint[] array from the input of insert() fn [uint[] calldata y], and pass it to the fn _internal(y)
 
         The difference between loading the input to memory and calldata 
@@ -1207,6 +1312,10 @@ eg of combining enums with other datatypes
     }
 
     function _internal(uint[] calldata y) private {
+
+        // here a copy is NOT created when y is passed from insert to _internal
+        // cannot modify the input/received data
+
         If we declare it as calldata then there is one less copying to do, ie it takes y from the input [from insert()] and 
         then passes it to the internal() without creating a copy of it in memory, hence saves gas 
     }
@@ -1228,16 +1337,16 @@ eg of combining enums with other datatypes
 
 Eg with array
         contract DataLocations {
-        uint[] public arr = [1, 2, 3, 4];
+        uint[] public arr = [1, 2, 3, 4];  // default location - storage
 
         function store() external {
-            uint[] storage _arr = arr;
+            uint[] storage _arr = arr; // storage to storage access - points to same location
             _arr[0] = 0;
         }
 
         function mem() external view {
-            uint[] memory _arr = arr;
-            _arr[0] = 12;
+            uint[] memory _arr = arr; // storage to memory access - points to different location
+            _arr[0] = 12;             // since in memory its a copy of orginal data we can modify it without modifying the state/storage variable
         }
     }
 
@@ -1249,18 +1358,18 @@ Eg with struct
         string name;
     }
 
-    Data public data = Data({num : 0, name : "Zero"});
+    Data public data = Data({num : 0, name : "Zero"}); // default location - storage
 
     function store() external {
-        Data storage _data = data;
+        Data storage _data = data; // storage to storage access - points to same location
         _data.num = 1;
         _data.name = "one";
     }
 
     function mem() external view {
-        Data memory _data = data;
+        Data memory _data = data; // storage to memory access - points to different location
         _data.num = 2;
-        _data.name = "two";
+        _data.name = "two";      // since in memory its a copy of orginal data we can modify it without modifying the state/storage variable
     }
 }
 
