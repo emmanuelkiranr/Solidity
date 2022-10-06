@@ -1,0 +1,74 @@
+## Inheritance
+
+If you want the fns in parent contract to be customised in the child contract,
+then declare that function as "virtual"
+And in the child contract declare copy those function and declare it as "override"
+
+A function can have both virtual and override declaration if it has to be 
+inherited further down for customising
+
+## Multiple Inheritance
+
+Order of Inheritance will be most base like to derived
+
+eg:
+
+    x
+  / |
+ y  |
+  \ |
+    Z
+    order of inheritance - x, y, z
+   1 - (z inherits from both x and y, y inherits from x, but x inherits from ntg)
+   2 - (y inherits from x only but z inherits from both x and y)
+
+    x
+  /   \
+ y     A
+ |     |
+ |     B
+  \   /
+    z
+
+    order of inheritance - x, y, A, B, z (y and A can be interchanged)
+
+contract Z is X, Y { // order is important or else wont compile - most base like to derived
+    function foo() public pure override(X, Y) returns(string memory) { // since the same fn is inherited from multiple ctrt
+        return "Z";
+    }
+
+    function bar() public pure override(Y, X) returns(string memory) { // order don't matter
+        return "Z";
+    }
+}
+
+## Calling parent constructor inside (multiple)inherited contract
+
+// order of execution - The order in which the constructor is called inside the function doesn't matter
+// S
+// T
+// U
+
+1. contract U is S("s"), T("t") {  // If we know the constructor input value - static input
+    
+}
+
+2. contract V is S, T { 
+    constructor(string memory _text, string memory _name) S(_text) T(_name) {// Dynamically passing input values
+
+    }
+}
+
+3. contract W is S("s"), T {
+    constructor(string memory _name) T(_name) { // combination of static and dynamic
+
+    }
+}
+
+The order of initializition of the parent constructor is determined by the order of contracts inherited
+
+## Calling parent functions
+- directly - directly calls and executes the defined parent contract
+- super - calls all the parent contract(multiple inheritance) and executed all of their inherited functions
+
+(refer - CallParentFns.sol)
