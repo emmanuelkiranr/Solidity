@@ -72,3 +72,40 @@ The order of initializition of the parent constructor is determined by the order
 - super - calls all the parent contract(multiple inheritance) and executed all of their inherited functions
 
 (refer - CallParentFns.sol)
+
+## Visibiility 
+It defines how a contract or other contract have access to state variables and functions
+
+- Private - only inside contract that defined it
+- Internal - only inside contract and child contract
+- public - inside and outside contract
+- external - only from outside contract
+
+------------------
+| A              |
+| private pri()  |
+| internal int() |    <--- C -pub(), ext()
+| public pub()   |
+| external ext() |
+------------------
+
+------------------
+| B is A         |
+|  int()         |   <--- C -pub(), ext()
+|  pub()         |
+------------------
+
+(refer - Visibiility.sol)
+
+## immutable - similar to const but we want to initialize only when the contract is deployed. saves gas too
+immutable variables can be initialized only when the contract is deployed and cannot be changed later
+
+    address public owner = msg.sender; // 32816
+    address public immutable owner = msg.sender; // 30363
+
+    uint count = 1;
+
+    function addd() public {
+        require(msg.sender == owner);
+        count++;
+    }
