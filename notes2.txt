@@ -109,3 +109,55 @@ immutable variables can be initialized only when the contract is deployed and ca
         require(msg.sender == owner);
         count++;
     }
+
+## Payable - adds functionality to send and receive Ether
+
+While declaring a global variable like address as payable the keyword should come after the type
+address payable public owner;
+
+Use the value field in remix to set the amount of eth to be send to the contract(to the payable function)
+
+## Fallback - Is a special function that gets called when the function that you call does not exist in the contract,
+The main usecase of fallback function is to enable direct sending ether(instead to a fn inside the contract)
+
+# receive() - similar to fallback, (but will not be executed if a fn that does not exist in our contract is called)
+
+                Ether is sent to a contract
+                            |
+                  is msg.data is empty?
+                  /                 \
+                Yes                 No
+                /                     \
+     receive() exists?           fallback()
+        /        \
+       Yes       No
+      /             \
+   receive()        fallback()
+
+To test it create a fallback and receive fn and emit logs- fallback has msg.data whereas the msg.data para of receive is "" (empty string)
+
+Use the low level interaction section of remix to interact with the contract send 1 eth using the value field in remix
+if we transact it with any hexadecimal data (in the low level interaction field) then the triggered fn is fallback()
+else its receive() check the debug section for the emitted log details
+
+If receive() does not exist - for both the above cases(with and without msg.data) fallback() is executed
+
+## Send Ether to contract
+- 3 ways
+    Transfer - 2300 Gas, reverts - sends 2300 gas and if send fails then the fn reverts 
+    Send - 2300 Gas, returns bool - similar but returns bool if send is successful or not // not used by popular contracts
+    Call - all gas, returns bool and data - sends all gas and returns bool if successful or not and some data // recommended
+
+To make a contract receive eth -
+
+- One way is to pay it when the contract is deployed by having a payable constructor
+
+    constructor() payable {
+    }
+    Declare a payable constructor and pass the amount of eth to be send in the value field in remix before deploying
+
+    - Another way is to have a payable fallback() better have a payable receive() - so if non existant fns are called then the fn call will fails
+
+To send eth out from a contract (refer - SendEth.sol)
+
+## Ether Wallet (refer - EtherWallet.sol)
